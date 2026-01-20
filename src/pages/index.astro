@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import TaskManager from '../components/TaskManager'; // Import the React component
 ---
 
 <Layout title="Closed-List App">
@@ -10,9 +11,8 @@ import Layout from '../layouts/Layout.astro';
     <p class="text-center text-lg text-gray-600">
       這是您的個人化封閉式清單應用程式。
     </p>
-    <div class="mt-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">今日清單</h2>
-        <p class="text-gray-500">此處將顯示今日的封閉式任務。</p>
+    <div class="mt-10">
+        <TaskManager client:load /> {/* Render the TaskManager React component */}
     </div>
   </main>
 </Layout>
