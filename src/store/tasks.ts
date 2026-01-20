@@ -197,6 +197,33 @@ export function endOfDay() {
   currentDate.set(nextDay.toISOString().split('T')[0]);
 }
 
+/**
+ * Reverts the state to the most recent entry in the history.
+ * This effectively "undos" the last "End Day" action.
+ */
+export function revertToPreviousDay() {
+  const pastLists = pastDailyLists.get();
+  
+  if (pastLists.length === 0) {
+    console.warn("No history to revert to.");
+    return;
+  }
+
+  // Defensive check for the array itself
+  const validPastLists = Array.isArray(pastLists) ? pastLists : [];
+  if (validPastLists.length === 0) return;
+  
+  const latestHistory = validPastLists[0];
+
+  // Restore the state from the latest history item
+  currentDate.set(latestHistory.date);
+  currentDayTasks.set(latestHistory.tasks || []);
+  tomorrowInbox.set(latestHistory.tomorrowInbox || []);
+
+  // Remove the reverted item from the history
+  pastDailyLists.set(validPastLists.slice(1));
+}
+
 // Function to reset all stores for testing purposes (optional)
 export function resetAllStores() {
   currentDayTasks.set([]);

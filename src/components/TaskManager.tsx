@@ -10,6 +10,7 @@ import {
   addTaskToInbox,
   addUrgentTask,
   endOfDay,
+  revertToPreviousDay, // Import the new action
 } from '../store/tasks';
 
 const TaskManager: React.FC = () => {
@@ -22,11 +23,13 @@ const TaskManager: React.FC = () => {
 
   const tasksFromStore = useStore(currentDayTasks);
   const inboxTasksFromStore = useStore(tomorrowInbox);
+  const pastListsFromStore = useStore(pastDailyLists); // Get past lists for the button logic
   const todayDate = useStore(currentDate);
 
   // We still keep these defensive checks
   const displayTasks = Array.isArray(tasksFromStore) ? tasksFromStore : [];
   const displayInboxTasks = Array.isArray(inboxTasksFromStore) ? inboxTasksFromStore : [];
+  const displayPastLists = Array.isArray(pastListsFromStore) ? pastListsFromStore : [];
 
   const [todayTaskText, setTodayTaskText] = useState('');
   const [inboxTaskText, setInboxTaskText] = useState('');
@@ -57,6 +60,13 @@ const TaskManager: React.FC = () => {
     }
   };
 
+  const handleRevert = () => {
+    if (confirm('確定要撤銷上一次的「結束今天」操作，並回到前一天的狀態嗎？')) {
+      revertToPreviousDay();
+      alert('已成功回到前一天！');
+    }
+  };
+
   // On the server, and on the initial client render, render nothing to avoid mismatch.
   if (!hasMounted) {
     return null; 
@@ -79,6 +89,14 @@ const TaskManager: React.FC = () => {
             緊急插入
           </button>
           <div className="flex gap-2">
+            {displayPastLists.length > 0 && (
+              <button
+                onClick={handleRevert}
+                className="px-3 py-1 text-sm bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition"
+              >
+                回到前一天
+              </button>
+            )}
             <button 
               onClick={handleEndOfDay}
               className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition"
