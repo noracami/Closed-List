@@ -1,24 +1,71 @@
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
+# Diagnostic reports (https://nodejs.org/api/report.html)
+.report/
 
-# environment variables
+# Runtime data
+.eslintcache
+.next/ # Next.js build output
+.nuxt/ # Nuxt.js build output
+.vercel/ # Vercel build output
+.sapper/ # Sapper build output
+.parcel-cache/ # Parcel build output
+.vite/ # Vite build output
+.svelte-kit/ # SvelteKit build output
+.astro/ # Astro build output
+
+# Directory for `.env` files
 .env
-.env.production
+.env.local
+.env.*.local
+.flaskenv
 
-# macOS-specific files
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvsps
+*.njsproj
+*.sln
+*.sw?
+
+# Node.js
+node_modules/
+dist/
+build/
+.npm
+.yarn
+
+# Dependency directories
+.pnp
+.pnp.js
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*.spec.js
+*.test.js
+*.e2e.js
+
+# MacOS
 .DS_Store
 
-# jetbrains setting folder
-.idea/
+# Thumbnails
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Gemini specific
+.gemini-clipboard/
