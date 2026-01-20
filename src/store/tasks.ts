@@ -43,6 +43,39 @@ export function addTask(text: string) {
 }
 
 /**
+ * Adds a new task to the tomorrow's inbox.
+ * @param text The content of the task.
+ */
+export function addTaskToInbox(text: string) {
+  if (!text.trim()) return;
+  const newTask: Task = {
+    id: crypto.randomUUID(),
+    text,
+    completed: false,
+    isUrgent: false,
+    createdAt: Date.now(),
+  };
+  tomorrowInbox.set([...tomorrowInbox.get(), newTask]);
+}
+
+/**
+ * Adds a new urgent task to the current day's list.
+ * @param text The content of the task.
+ */
+export function addUrgentTask(text: string) {
+  if (!text.trim()) return;
+  const newTask: Task = {
+    id: crypto.randomUUID(),
+    text,
+    completed: false,
+    isUrgent: true, // Mark as urgent
+    createdAt: Date.now(),
+  };
+  // Add urgent tasks to the top for visibility
+  currentDayTasks.set([newTask, ...currentDayTasks.get()]);
+}
+
+/**
  * Toggles the completion status of a task in the current day's list.
  * @param taskId The ID of the task to toggle.
  */
