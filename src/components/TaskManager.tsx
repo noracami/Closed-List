@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { 
   currentDayTasks, 
   tomorrowInbox,
+  pastDailyLists,
+  currentDate,
   addTask, 
   toggleTask,
   addTaskToInbox,
-  addUrgentTask
+  addUrgentTask,
+  endOfDay,
 } from '../store/tasks';
 
 const TaskManager: React.FC = () => {
-  // Defensive check: Ensure the value from the store is an array.
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    // This runs only on the client, after the component has mounted.
+    setHasMounted(true);
+  }, []);
+
   const tasksFromStore = useStore(currentDayTasks);
-  const tasks = Array.isArray(tasksFromStore) ? tasksFromStore : [];
-  
   const inboxTasksFromStore = useStore(tomorrowInbox);
-  const inboxTasks = Array.isArray(inboxTasksFromStore) ? inboxTasksFromStore : [];
+  const todayDate = useStore(currentDate);
+
+  // We still keep these defensive checks
+  const displayTasks = Array.isArray(tasksFromStore) ? tasksFromStore : [];
+  const displayInboxTasks = Array.isArray(inboxTasksFromStore) ? inboxTasksFromStore : [];
 
   const [todayTaskText, setTodayTaskText] = useState('');
   const [inboxTaskText, setInboxTaskText] = useState('');
@@ -33,12 +44,23 @@ const TaskManager: React.FC = () => {
   };
   
   const handleUrgentSubmit = () => {
-    // A simple prompt for urgent tasks
     const text = prompt('請輸入緊急任務內容：');
     if (text) {
       addUrgentTask(text);
     }
   };
+
+  const handleEndOfDay = () => {
+    if (confirm('確定要結束今天並將任務滾動到明天嗎？')) {
+      endOfDay();
+      alert('今天已結束，任務已滾動至下一天！');
+    }
+  };
+
+  // On the server, and on the initial client render, render nothing to avoid mismatch.
+  if (!hasMounted) {
+    return null; 
+  }
 
   return (
     <>
@@ -46,12 +68,30 @@ const TaskManager: React.FC = () => {
       <div className="p-6 border rounded-lg shadow-sm bg-white mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-gray-800">今日清單</h2>
+          <span className="text-lg font-medium text-gray-600">{todayDate}</span>
+        </div>
+        
+        <div className="flex justify-between items-center mb-4">
           <button 
             onClick={handleUrgentSubmit}
             className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
           >
             緊急插入
           </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleEndOfDay}
+              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition"
+            >
+              結束今天
+            </button>
+            <a
+              href="/history"
+              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+            >
+              查看歷史紀錄
+            </a>
+          </div>
         </div>
         
         <form onSubmit={handleTodaySubmit} className="flex gap-2 mb-6">
@@ -71,7 +111,7 @@ const TaskManager: React.FC = () => {
         </form>
 
         <ul className="space-y-3">
-          {tasks.map((task) => (
+          {displayTasks.map((task) => (
             <li key={task.id} className={`flex items-center p-3 rounded-md transition-colors duration-300 ${task.isUrgent ? 'bg-red-50' : 'bg-gray-50'}`}>
               <input
                 type="checkbox"
@@ -85,7 +125,7 @@ const TaskManager: React.FC = () => {
               </span>
             </li>
           ))}
-          {tasks.length === 0 && (
+          {displayTasks.length === 0 && (
               <p className="text-center text-gray-500 py-4">今天的清單是空的！</p>
           )}
         </ul>
@@ -110,13 +150,13 @@ const TaskManager: React.FC = () => {
           </button>
         </form>
         <ul className="space-y-2 text-sm">
-          {inboxTasks.map((task) => (
+          {displayInboxTasks.map((task) => (
             <li key={task.id} className="flex items-center text-gray-500">
               <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
               {task.text}
             </li>
           ))}
-          {inboxTasks.length === 0 && (
+          {displayInboxTasks.length === 0 && (
             <p className="text-center text-gray-400 italic py-2">收件匣是空的。</p>
           )}
         </ul>
